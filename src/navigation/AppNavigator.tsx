@@ -29,8 +29,12 @@ export default function AppNavigator() {
     <NavigationContainer>
 
       <Stack.Navigator
-        initialRouteName="Login"
+        initialRouteName="Home"
       >
+ <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+        />
 
 
         <Stack.Screen
@@ -45,11 +49,7 @@ export default function AppNavigator() {
         />
 
 
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-        />
-
+     
 
         <Stack.Screen
           name="AddPost"
