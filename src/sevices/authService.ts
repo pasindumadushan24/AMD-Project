@@ -1,7 +1,8 @@
 import {
  createUserWithEmailAndPassword,
  signInWithEmailAndPassword,
- signOut
+ signOut,
+ updateProfile
 }
 from "firebase/auth";
 
@@ -13,20 +14,42 @@ from "../firebase/config";
 
 
 
+
+// REGISTER
+
 export const registerUser = async(
+name:string,
 email:string,
 password:string
 )=>{
 
-return await createUserWithEmailAndPassword(
-auth,
-email,
-password
+
+const result =
+await createUserWithEmailAndPassword(
+ auth,
+ email,
+ password
 );
+
+
+// save name
+
+await updateProfile(
+ result.user,
+ {
+  displayName:name
+ }
+);
+
+
+return result.user;
 
 };
 
 
+
+
+// LOGIN
 
 export const loginUser = async(
 email:string,
@@ -34,14 +57,16 @@ password:string
 )=>{
 
 return await signInWithEmailAndPassword(
-auth,
-email,
-password
+ auth,
+ email,
+ password
 );
 
 };
 
 
+
+// LOGOUT
 
 export const logoutUser = async()=>{
 

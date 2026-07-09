@@ -1,82 +1,34 @@
 // src/services/postService.ts
 
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+ collection,
+ addDoc,
+ getDocs,
+ doc,
+ updateDoc,
+ deleteDoc
+} from "firebase/firestore";
 
-
-const API_URL =
-"https://gracious-liberation-production-245a.up.railway.app/api/posts";
-
+import { db } from "../firebase/config";
 
 
 // GET ALL POSTS
 
 export const getPosts = async()=>{
 
- try{
-
-  const response = await axios.get(
-    API_URL
-  );
-
-  return response.data;
+const snapshot = await getDocs(
+collection(db,"posts")
+);
 
 
- }catch(error){
+return snapshot.docs.map(item=>({
 
-  console.log("Get Posts Error:",error);
-  throw error;
+id:item.id,
+...item.data()
 
- }
+}));
 
 };
-
-
-
-
-
-// GET MY POSTS
-
-export const getMyPosts = async()=>{
-
- try{
-
-
- const token =
- await AsyncStorage.getItem("token");
-
-
-
- const response =
- await axios.get(
-
- `${API_URL}/my-posts`,
-
- {
- headers:{
-  Authorization:`Bearer ${token}`
- }
- }
-
- );
-
-
-
- return response.data;
-
-
-
- }catch(error){
-
- console.log("My Posts Error:",error);
- throw error;
-
- }
-
-};
-
-
-
 
 
 
@@ -86,51 +38,18 @@ export const getMyPosts = async()=>{
 export const createPost = async(postData:any)=>{
 
 
-try{
+const docRef = await addDoc(
 
+collection(db,"posts"),
 
-const token =
-await AsyncStorage.getItem("token");
-
-
-
-const response =
-await axios.post(
-
-API_URL,
-
-postData,
-
-{
-
-headers:{
-Authorization:`Bearer ${token}`,
-"Content-Type":"multipart/form-data"
-}
-
-}
+postData
 
 );
 
 
-
-return response.data;
-
-
-
-}catch(error){
-
-console.log("Create Post Error:",error);
-throw error;
-
-}
-
+return docRef.id;
 
 };
-
-
-
-
 
 
 
@@ -143,49 +62,16 @@ postData:any
 )=>{
 
 
-try{
+await updateDoc(
 
+doc(db,"posts",id),
 
-const token =
-await AsyncStorage.getItem("token");
-
-
-
-const response =
-await axios.put(
-
-`${API_URL}/${id}`,
-
-postData,
-
-{
-
-headers:{
-Authorization:`Bearer ${token}`
-}
-
-}
+postData
 
 );
 
 
-
-return response.data;
-
-
-
-}catch(error){
-
-console.log("Update Error:",error);
-throw error;
-
-}
-
-
 };
-
-
-
 
 
 
@@ -197,41 +83,11 @@ id:string
 )=>{
 
 
-try{
+await deleteDoc(
 
-
-const token =
-await AsyncStorage.getItem("token");
-
-
-
-const response =
-await axios.delete(
-
-`${API_URL}/${id}`,
-
-{
-
-headers:{
-Authorization:`Bearer ${token}`
-}
-
-}
+doc(db,"posts",id)
 
 );
-
-
-
-return response.data;
-
-
-
-}catch(error){
-
-console.log("Delete Error:",error);
-throw error;
-
-}
 
 
 };
