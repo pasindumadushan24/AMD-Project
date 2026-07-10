@@ -1,18 +1,22 @@
 import React, {useEffect, useState} from "react";
 
+
 import {
- View,
- Text,
- Image,
- FlatList,
- TouchableOpacity,
- StyleSheet,
- Alert
+View,
+Text,
+Image,
+FlatList,
+TouchableOpacity,
+StyleSheet,
+Alert
 } from "react-native";
 
-import axios from "axios";
+import {collection,getDocs,query,where,deleteDoc,doc} from "firebase/firestore";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {db} from "../firebase/config";
+
+import {getAuth} from "firebase/auth";
+
 
 
 export default function Profile({navigation}:any){
@@ -22,9 +26,15 @@ const [myPosts,setMyPosts]=useState<any[]>([]);
 
 
 
+const auth=getAuth();
+
+
+
+
+
 useEffect(()=>{
 
- loadMyPosts();
+loadMyPosts();
 
 },[]);
 
@@ -32,46 +42,77 @@ useEffect(()=>{
 
 
 
-// GET USER POSTS
 const loadMyPosts=async()=>{
 
- try{
 
- const token =
- await AsyncStorage.getItem("token");
+try{
 
 
- const res =
- await axios.get(
-
- "https://gracious-liberation-production-245a.up.railway.app/api/posts/my-posts",
-
- {
- headers:{
- Authorization:`Bearer ${token}`
- }
- }
-
- );
-
-
- setMyPosts(res.data);
+const user=auth.currentUser;
 
 
 
- }catch(error){
+if(!user){
 
- console.log(error);
-
- }
+return;
 
 }
 
 
 
+const q=query(
+
+collection(db,"posts"),
+
+where(
+"userId",
+"==",
+user.uid
+)
+
+);
 
 
-// DELETE POST
+
+const snapshot=await getDocs(q);
+
+
+
+const data=snapshot.docs.map(item=>(
+
+{
+
+id:item.id,
+
+...item.data()
+
+}
+
+));
+
+
+
+setMyPosts(data);
+
+
+
+}
+
+catch(error){
+
+console.log(error);
+
+}
+
+
+
+};
+
+
+
+
+
+
 
 const deletePost=async(id:string)=>{
 
@@ -79,22 +120,9 @@ const deletePost=async(id:string)=>{
 try{
 
 
-const token=
-await AsyncStorage.getItem("token");
+await deleteDoc(
 
-
-
-await axios.delete(
-
-`https://gracious-liberation-production-245a.up.railway.app/api/posts/${id}`,
-
-{
-
-headers:{
-Authorization:`Bearer ${token}`
-}
-
-}
+doc(db,"posts",id)
 
 );
 
@@ -103,7 +131,9 @@ Authorization:`Bearer ${token}`
 setMyPosts(
 
 myPosts.filter(
-(post)=>post._id!==id
+
+(post)=>post.id!==id
+
 )
 
 );
@@ -117,9 +147,13 @@ Alert.alert(
 
 
 
-}catch(error){
+}
+
+catch(error){
+
 
 console.log(error);
+
 
 Alert.alert(
 "Error",
@@ -130,27 +164,24 @@ Alert.alert(
 }
 
 
-
-}
-
+};
 
 
 
 
 
 
-// LOGOUT FIREBASE/JWT
 
 const logout=async()=>{
 
 
-await AsyncStorage.removeItem("token");
+await auth.signOut();
 
 
 navigation.replace("Login");
 
 
-}
+};
 
 
 
@@ -168,19 +199,29 @@ return(
 
 
 <Text style={styles.title}>
+
 My Profile
+
 </Text>
+
+
 
 
 
 <TouchableOpacity
+
 style={styles.logout}
+
 onPress={logout}
+
 >
 
 <Text style={styles.logoutText}>
+
 Logout
+
 </Text>
+
 
 </TouchableOpacity>
 
@@ -191,9 +232,17 @@ Logout
 
 
 
+
+
 <Text style={styles.heading}>
+
 My Ads
+
 </Text>
+
+
+
+
 
 
 
@@ -205,13 +254,18 @@ myPosts.length===0 ?
 
 <View style={styles.empty}>
 
+
 <Text style={styles.emptyTitle}>
+
 No Ads Yet
+
 </Text>
 
 
 <Text>
+
 You haven't posted any ads
+
 </Text>
 
 
@@ -221,11 +275,15 @@ You haven't posted any ads
 :
 
 
+
 <FlatList
+
 
 data={myPosts}
 
-keyExtractor={(item)=>item._id}
+
+keyExtractor={(item)=>item.id}
+
 
 
 renderItem={({item})=>(
@@ -238,8 +296,8 @@ renderItem={({item})=>(
 
 source={{
 
-uri:
-item.images?.[0] ||
+uri:item.images?.[0] ||
+
 "https://via.placeholder.com/400"
 
 }}
@@ -250,32 +308,54 @@ style={styles.image}
 
 
 
+
+
 <Text style={styles.category}>
+
 {item.category}
+
 </Text>
+
+
 
 
 
 <Text style={styles.postTitle}>
+
 {item.title}
+
 </Text>
+
+
 
 
 
 <Text>
+
 {item.description}
+
 </Text>
+
+
 
 
 
 <Text style={styles.price}>
+
 LKR {item.price}
+
 </Text>
+
+
+
+
 
 
 
 
 <View style={styles.buttons}>
+
+
 
 
 <TouchableOpacity
@@ -286,54 +366,29 @@ onPress={()=>
 
 
 navigation.navigate(
+
 "PostDetails",
+
 {
-id:item._id
+id:item.id
 }
 
 )
+
 
 }
 
 >
 
 <Text style={styles.btnText}>
+
 View
+
 </Text>
 
 
 </TouchableOpacity>
 
-
-
-
-
-
-<TouchableOpacity
-
-style={styles.editBtn}
-
-onPress={()=>
-
-
-navigation.navigate(
-"EditPost",
-{
-id:item._id
-}
-
-)
-
-}
-
->
-
-<Text style={styles.btnText}>
-Edit
-</Text>
-
-
-</TouchableOpacity>
 
 
 
@@ -344,14 +399,14 @@ Edit
 
 style={styles.deleteBtn}
 
-onPress={()=>
-deletePost(item._id)
-}
+onPress={()=>deletePost(item.id)}
 
 >
 
 <Text style={styles.btnText}>
+
 Delete
+
 </Text>
 
 
@@ -360,6 +415,9 @@ Delete
 
 
 </View>
+
+
+
 
 
 
@@ -372,23 +430,20 @@ Delete
 />
 
 
-
 }
+
+
 
 
 
 </View>
 
 
-)
+);
+
 
 }
-
-
-
-
-
-const styles=StyleSheet.create({
+const styles = StyleSheet.create({
 
 container:{
 flex:1,
@@ -425,14 +480,12 @@ fontWeight:"bold"
 },
 
 
-
 heading:{
 fontSize:24,
 fontWeight:"bold",
 textAlign:"center",
 marginBottom:15
 },
-
 
 
 card:{
@@ -443,13 +496,11 @@ marginBottom:15
 },
 
 
-
 image:{
 height:200,
 width:"100%",
 borderRadius:10
 },
-
 
 
 category:{
@@ -474,26 +525,16 @@ marginTop:8
 },
 
 
-
 buttons:{
 flexDirection:"row",
-gap:5,
+gap:10,
 marginTop:15
 },
-
 
 
 viewBtn:{
 flex:1,
 backgroundColor:"#2563eb",
-padding:10,
-borderRadius:8
-},
-
-
-editBtn:{
-flex:1,
-backgroundColor:"#eab308",
 padding:10,
 borderRadius:8
 },
