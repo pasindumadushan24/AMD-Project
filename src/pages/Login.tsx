@@ -33,7 +33,7 @@ password
 );
 
 
-navigation.replace("Home");
+navigation.replace("AddPost");
 
 
 }catch(error:any){
