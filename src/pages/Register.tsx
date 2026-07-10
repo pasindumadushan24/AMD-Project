@@ -28,41 +28,51 @@ const [password,setPassword]=useState("");
 
 
 
+const handleRegister = async () => {
+  if (!name.trim()) {
+    Alert.alert("Error", "Please enter your name");
+    return;
+  }
 
-const handleRegister=async()=>{
+  if (!email.trim()) {
+    Alert.alert("Error", "Please enter your email");
+    return;
+  }
 
+  if (password.length < 6) {
+    Alert.alert(
+      "Error",
+      "Password must be at least 6 characters"
+    );
+    return;
+  }
 
-try{
+  try {
+    await registerUser(
+      name.trim(),
+      email.trim(),
+      password
+    );
 
+    Alert.alert(
+      "Success",
+      "Account created successfully"
+    );
 
-await registerUser(
-name,
-email,
-password
-);
+    navigation.replace("Login");
+  } catch (error: any) {
+    let message = "Registration failed";
 
+    if (error.code === "auth/email-already-in-use") {
+      message = "Email already exists";
+    } else if (error.code === "auth/invalid-email") {
+      message = "Invalid email address";
+    } else if (error.code === "auth/weak-password") {
+      message = "Weak password";
+    }
 
-Alert.alert(
-"Success",
-"Account created"
-);
-
-
-navigation.replace("Home");
-
-
-}catch(error:any){
-
-
-Alert.alert(
-"Register Error",
-error.message
-);
-
-
-}
-
-
+    Alert.alert("Register Error", message);
+  }
 };
 
 
@@ -77,35 +87,27 @@ return(
 Create Account
 </Text>
 
-
-
 <TextInput
-placeholder="Name"
-style={styles.input}
-onChangeText={setName}
+  placeholder="Name"
+  value={name}
+  onChangeText={setName}
+  style={styles.input}
 />
 
-
 <TextInput
-placeholder="Email"
-style={styles.input}
-onChangeText={setEmail}
+  placeholder="Email"
+  value={email}
+  onChangeText={setEmail}
+  style={styles.input}
 />
 
-
-
 <TextInput
-
-placeholder="Password"
-
-secureTextEntry
-
-style={styles.input}
-
-onChangeText={setPassword}
-
+  placeholder="Password"
+  value={password}
+  onChangeText={setPassword}
+  secureTextEntry
+  style={styles.input}
 />
-
 
 
 <TouchableOpacity
