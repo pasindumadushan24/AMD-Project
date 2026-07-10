@@ -34,21 +34,17 @@ id:item.id,
 
 
 // CREATE POST
+export const createPost = async (postData: any) => {
+  console.log("Saving Post:", postData);
 
-export const createPost = async(postData:any)=>{
+  const docRef = await addDoc(
+    collection(db, "posts"),
+    postData
+  );
 
+  console.log("Saved Post ID:", docRef.id);
 
-const docRef = await addDoc(
-
-collection(db,"posts"),
-
-postData
-
-);
-
-
-return docRef.id;
-
+  return docRef.id;
 };
 
 
