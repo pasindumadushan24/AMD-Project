@@ -1,4 +1,6 @@
 import React, {useEffect, useState} from "react";
+import { getDoc } from "firebase/firestore"; // getDoc අලුතින් එක් කරන්න
+import { ref as storageRef, deleteObject } from "firebase/storage";
 
 
 import {
@@ -13,7 +15,7 @@ Alert
 
 import {collection,getDocs,query,where,deleteDoc,doc} from "firebase/firestore";
 
-import {db} from "../firebase/config";
+import {db, storage} from "../firebase/config";
 
 import {getAuth} from "firebase/auth";
 
@@ -114,57 +116,71 @@ console.log(error);
 
 
 
-const deletePost=async(id:string)=>{
-
-
-try{
-
-
-await deleteDoc(
-
-doc(db,"posts",id)
-
-);
-
-
-
-setMyPosts(
-
-myPosts.filter(
-
-(post)=>post.id!==id
-
-)
-
-);
-
-
-
-Alert.alert(
-"Success",
-"Post Deleted"
-);
+// const deletePost=async(id:string)=>{
+// try{
+// await deleteDoc(
+// doc(db,"posts",id)
+// );
+// setMyPosts(
+// myPosts.filter(
+// (post)=>post.id!==id
+// )
+// );
+// Alert.alert(
+// "Success",
+// "Post Deleted"
+// );
+// }
+// catch(error){
+// console.log(error);
+// Alert.alert(
+// "Error",
+// "Delete Failed"
+// );
+// }
+// };
 
 
 
-}
+ // මේවා ඉම්පෝර්ට් කරන්න
 
-catch(error){
+const deletePost = async (id: string) => {
+  try {
+    // 1. මුලින්ම Database එකෙන් එම පෝස්ට් එකේ දත්ත (URLs ඇතුළුව) ලබා ගන්න
+    const postRef = doc(db, "posts", id);
+    const postSnap = await getDoc(postRef);
 
+    if (postSnap.exists()) {
+      const data = postSnap.data();
+      const imageUrls = data.imageUrls || []; // පින්තූර URLs ලබා ගන්න
 
-console.log(error);
+      // 2. Storage එකේ ඇති පින්තූර ඩිලීට් කරන්න
+      for (const url of imageUrls) {
+        try {
+          const imgRef = storageRef(storage, url);
+          await deleteObject(imgRef);
+        } catch (storageError) {
+          console.log("පින්තූරය ඩිලීට් කිරීමේදී දෝෂයක්:", storageError);
+        }
+      }
 
+      // 3. දැන් Database එකෙන් පෝස්ට් එක ඩිලීට් කරන්න
+      await deleteDoc(postRef);
 
-Alert.alert(
-"Error",
-"Delete Failed"
-);
-
-
-}
-
-
+      // 4. UI එක Update කරන්න
+      setMyPosts(myPosts.filter((post) => post.id !== id));
+      Alert.alert("Success", "Post and images deleted successfully!");
+    }
+  } catch (error) {
+    console.log(error);
+    Alert.alert("Error", "Delete Failed");
+  }
 };
+
+
+
+
+
 
 
 
@@ -293,17 +309,11 @@ renderItem={({item})=>(
 
 
 <Image
-
-source={{
-
-uri:item.images?.[0] ||
-
-"https://via.placeholder.com/400"
-
-}}
-
-style={styles.image}
-
+  source={{
+    // 'item.images' වෙනුවට 'item.imageUrls' භාවිතා කරන්න
+    uri: item.imageUrls?.[0] || "https://via.placeholder.com/400"
+  }}
+  style={styles.image}
 />
 
 
