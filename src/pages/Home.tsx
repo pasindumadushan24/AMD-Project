@@ -1,5 +1,8 @@
-import React, {useEffect, useState} from "react";
+// import React, {useEffect, useState} from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { auth } from "../firebase/config"; // auth එක import කරගන්න
+import React, { useState, useEffect, useCallback } from "react"; // useCallback එකතු කරන්න
+import { useFocusEffect } from "@react-navigation/native";
 
 import {
 View,
@@ -9,6 +12,7 @@ Image,
 StyleSheet,
 TouchableOpacity,
 TextInput,
+Alert,
 ScrollView
 } from "react-native";
 
@@ -73,12 +77,11 @@ colors:["#ef4444","#991b1b"]
 
 
 
-useEffect(()=>{
-
-loadPosts();
-
-},[]);
-
+useFocusEffect(
+  useCallback(() => {
+    loadPosts(); 
+  }, [])
+);
 
 
 
@@ -197,21 +200,25 @@ Register
 
 
 <TouchableOpacity
-
-onPress={()=>navigation.navigate("AddPost")}
-
-style={styles.postBtn}
-
+  onPress={() => {
+    // 1. පරිශීලකයා ලොග් වී ඇත්දැයි බලන්න
+    if (auth.currentUser) {
+      navigation.navigate("AddPost");
+    } else {
+      // 2. ලොග් වී නැතිනම්, Alert එකක් මගින් Login පිටුවට යවන්න
+      Alert.alert(
+        "Login Required",
+        "You need to be logged in to post an ad. Please login to continue.",
+        [
+          { text: "Cancel" },
+          { text: "Login", onPress: () => navigation.navigate("Login") }
+        ]
+      );
+    }
+  }}
+  style={styles.postBtn}
 >
-
-
-<Text style={{color:"white"}}>
-
-+ Post Ad
-
-</Text>
-
-
+  <Text style={{color: "white"}}>+ Post Ad</Text>
 </TouchableOpacity>
 
 
@@ -541,7 +548,7 @@ id:item.id
 
 {
 
-item.images?.[0] &&
+item.imageUrls?.[0] &&
 
 
 <Image
@@ -549,7 +556,7 @@ item.images?.[0] &&
 
 source={{
 
-uri:item.images[0]
+uri:item.imageUrls[0]
 
 }}
 
