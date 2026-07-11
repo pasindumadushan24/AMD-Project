@@ -209,44 +209,15 @@ onPress={()=>navigation.goBack()}
 
 
 <FlatList
-
-
-data={post.images || []}
-
-
-keyExtractor={(item,index)=>
-
-index.toString()
-
-}
-
-
-
-
-renderItem={({item})=>(
-
-
-<Image
-
-
-source={{
-
-uri:item
-
-}}
-
-
-style={styles.image}
-
-
+  data={post.imageUrls || []} // Database එකේ නම 'imageUrls' නිසා මෙතැනත් එසේ විය යුතුයි
+  keyExtractor={(item, index) => index.toString()}
+  renderItem={({ item }) => (
+    <Image
+      source={{ uri: item }}
+      style={styles.image}
+    />
+  )}
 />
-
-
-)}
-
-
-/>
-
 
 
 
@@ -633,7 +604,7 @@ color:"green",
 
 fontWeight:"bold",
 
-marginTop:10
+marginTop:10 
 
 
 },
