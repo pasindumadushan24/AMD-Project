@@ -168,12 +168,6 @@ Loading...
 
 
 
-
-
-
-
-
-
 return(
 
 
@@ -202,14 +196,8 @@ onPress={()=>navigation.goBack()}
 
 
 
-
-
-
-
-
-
 <FlatList
-  data={post.imageUrls || []} // Database එකේ නම 'imageUrls' නිසා මෙතැනත් එසේ විය යුතුයි
+  data={post.imageUrls || []}
   keyExtractor={(item, index) => index.toString()}
   renderItem={({ item }) => (
     <Image
@@ -218,11 +206,6 @@ onPress={()=>navigation.goBack()}
     />
   )}
 />
-
-
-
-
-
 
 
 
@@ -238,18 +221,11 @@ onPress={()=>navigation.goBack()}
 
 
 
-
-
-
-
 <Text style={styles.price}>
 
 LKR {post.price}
 
 </Text>
-
-
-
 
 
 
@@ -274,11 +250,6 @@ LKR {post.price}
 
 
 
-
-
-
-
-
 <Text>
 
 Category: {post.category}
@@ -296,9 +267,6 @@ Category: {post.category}
 Sub Category: {post.subCategory}
 
 </Text>
-
-
-
 
 
 
@@ -460,42 +428,21 @@ Bathrooms: {post.bathrooms}
 </Text>
 
 
-
 </>
-
 
 
 }
 
 
-
-
-
-
-
-
-
 </View>
 
-
-
-
-
 </View>
-
 
 
 );
 
 
-
 }
-
-
-
-
-
-
 
 
 
