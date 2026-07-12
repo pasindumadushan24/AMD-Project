@@ -89,6 +89,15 @@ const uploadImageAsync = async (uri: string, postId: string, index: number): Pro
       const docRef = await addDoc(collection(db, "posts"), {
         category,
         subCategory,
+        mileage,
+        model,
+        year,
+        gear,
+        fuelType,
+        engineCC,
+        bedrooms,
+        bathrooms,
+        address,
         title,
         description,
         price,
@@ -114,8 +123,24 @@ const uploadImageAsync = async (uri: string, postId: string, index: number): Pro
       Alert.alert("✅ Success", "Post Added Successfully!");
       
      
-      setImages([]);
-      setTitle("");
+      // submit ශ්‍රිතයේ අගට මෙය එකතු කරන්න
+setImages([]);
+setTitle("");
+setCategory(""); // Category එකත් clear කරන්න
+setSubCategory("");
+setDescription("");
+setPrice("");
+setPhoneNumber("");
+setYear("");
+setMileage("");
+setModel("");
+setGear("");
+setFuelType("");
+setEngineCC("");
+setBedrooms("");
+setBathrooms("");
+setAddress("");
+setCity("");
      
       
     } catch (error) {
@@ -137,7 +162,11 @@ const uploadImageAsync = async (uri: string, postId: string, index: number): Pro
               <Picker.Item label="Select Category" value="" />
               <Picker.Item label="Vehicles" value="Vehicles" />
               <Picker.Item label="Property" value="Property" />
-              {/* Add other items here */}
+              <Picker.Item label="Electronics" value="Electronics" />
+              <Picker.Item label="Furniture" value="Furniture" />
+              <Picker.Item label="Fashion" value="Fashion" />
+
+              
             </Picker>
           </View>
 
@@ -145,11 +174,28 @@ const uploadImageAsync = async (uri: string, postId: string, index: number): Pro
             <>
               <TextInput style={styles.input} placeholder="Model" value={model} onChangeText={setModel} />
               <TextInput style={styles.input} placeholder="Year" value={year} onChangeText={setYear} keyboardType="numeric" />
-              {/* Add other vehicle inputs */}
+              <TextInput style={styles.input} placeholder="Mileage" value={mileage} onChangeText={setMileage} keyboardType="numeric" />
+              <TextInput style={styles.input} placeholder="Gear Type" value={gear} onChangeText={setGear} />
+              <TextInput style={styles.input} placeholder="Fuel Type" value={fuelType} onChangeText={setFuelType} />
+              <TextInput style={styles.input} placeholder="Engine CC" value={engineCC} onChangeText={setEngineCC} keyboardType="numeric" />
+              <TextInput style={styles.input} placeholder="Phone Number" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="numeric" />
+              <TextInput style={styles.input} placeholder="City" value={city} onChangeText={setCity} />
+            </>
+          )}
+         
+
+           {category === "Property" && (
+            <>
+              <TextInput style={styles.input} placeholder="Bedrooms" value={bedrooms} onChangeText={setBedrooms} keyboardType="numeric" />
+              <TextInput style={styles.input} placeholder="Bathrooms" value={bathrooms} onChangeText={setBathrooms} keyboardType="numeric" />
+              <TextInput style={styles.input} placeholder="Address" value={address} onChangeText={setAddress} />
+              <TextInput style={styles.input} placeholder="Phone Number" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="numeric" />
+              <TextInput style={styles.input} placeholder="City" value={city} onChangeText={setCity} />
             </>
           )}
 
           <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
+          <TextInput style={styles.input} placeholder="Price" value={price} onChangeText={setPrice} keyboardType="numeric" />
           <TextInput style={[styles.input, {height: 100}]} placeholder="Description" value={description} onChangeText={setDescription} multiline />
           
           <TouchableOpacity style={styles.imagePickerBtn} onPress={async () => {
