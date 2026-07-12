@@ -31,7 +31,7 @@ Installation
 Clone the repository:
 
 bash
-git clone https://github.com/YOUR_USERNAME/QuickMarketMobile.git
+git clone https: https://github.com/pasindumadushan24/AMD-Project
 
 
 Install dependencies:
