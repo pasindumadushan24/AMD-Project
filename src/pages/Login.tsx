@@ -14,19 +14,12 @@ import {loginUser} from "../sevices/authService";
 
 export default function LoginScreen({navigation}:any){
 
-
 const [email,setEmail]=useState("");
-
 const [password,setPassword]=useState("");
-
-
-
 const handleLogin=async()=>{
 
 
 try{
-
-
 await loginUser(
 email,
 password
@@ -34,29 +27,19 @@ password
 
 
 navigation.replace("AddPost");
-
-
 }catch(error:any){
-
 
 Alert.alert(
 "Login Failed",
 error.message
 );
-
-
 }
-
-
 };
 
 
 
 return(
-
 <View style={styles.container}>
-
-
 <Text style={styles.title}>
 QuickMarket Login
 </Text>
@@ -64,33 +47,20 @@ QuickMarket Login
 
 
 <TextInput
-
 placeholder="Email"
-
 style={styles.input}
-
 value={email}
-
 onChangeText={setEmail}
-
 />
-
 
 
 <TextInput
-
 placeholder="Password"
-
 secureTextEntry
-
 style={styles.input}
-
 value={password}
-
 onChangeText={setPassword}
-
 />
-
 
 
 <TouchableOpacity
@@ -102,26 +72,17 @@ onPress={handleLogin}
 <Text style={styles.buttonText}>
 Login
 </Text>
-
-
 </TouchableOpacity>
-
 
 
 <TouchableOpacity
 onPress={()=>navigation.navigate("Register")}
 >
 
-
 <Text style={styles.link}>
 Create new account
 </Text>
-
-
 </TouchableOpacity>
-
-
-
 </View>
 
 );
@@ -157,7 +118,7 @@ marginBottom:15
 
 
 button:{
-backgroundColor:"#16a34a",
+backgroundColor:"#4f46e5",
 padding:15,
 borderRadius:10
 },
