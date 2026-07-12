@@ -8,17 +8,11 @@ import {
 } from "react-native";
 
 import axios from "axios";
-
-
 export default function CategoryPage({route}:any){
-
  const {name}=route.params;
-
  const [posts,setPosts]=useState<any[]>([]);
 
-
  useEffect(()=>{
-
   loadPosts();
 
  },[]);
@@ -28,7 +22,6 @@ export default function CategoryPage({route}:any){
  const loadPosts=async()=>{
 
   try{
-
    const res=await axios.get(
     "https://gracious-liberation-production-245a.up.railway.app/api/posts"
    );
@@ -45,9 +38,7 @@ export default function CategoryPage({route}:any){
 
 
   }catch(err){
-
    console.log(err);
-
   }
 
  }
@@ -57,8 +48,6 @@ export default function CategoryPage({route}:any){
  return(
 
  <View style={styles.container}>
-
-
  <Text style={styles.title}>
  Category : {name}
  </Text>
@@ -66,26 +55,17 @@ export default function CategoryPage({route}:any){
 
 
  <FlatList
-
  data={posts}
-
  keyExtractor={(item)=>item._id}
-
  renderItem={({item})=>(
-
-
  <View style={styles.card}>
 
 
  {
  item.images?.[0] &&
- 
  <Image
-
  source={{uri:item.images[0]}}
-
  style={styles.image}
-
  />
 
  }
@@ -100,8 +80,6 @@ export default function CategoryPage({route}:any){
  <Text style={styles.price}>
  LKR {item.price}
  </Text>
-
-
  </View>
 
 
