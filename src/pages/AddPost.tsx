@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import {
   View, Text, TextInput, ScrollView, TouchableOpacity,
-  Image, ActivityIndicator, Alert, StyleSheet, Dimensions
+  ActivityIndicator, Alert, StyleSheet
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { db, storage, auth } from "../firebase/config";
@@ -17,11 +15,8 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage
 type ImageAsset = { uri: string; fileName?: string | null };
 
 function AddPost() {
-  const navigation = useNavigation<any>();
-
-  
   const [category, setCategory] = useState("");
-  const [subCategory, setSubCategory] = useState("");
+  // const [subCategory, setSubCategory] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -35,49 +30,43 @@ function AddPost() {
   const [bedrooms, setBedrooms] = useState("");
   const [bathrooms, setBathrooms] = useState("");
   const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
   const [images, setImages] = useState<ImageAsset[]>([]);
   const [loading, setLoading] = useState(false);
-  const [city, setCity] = useState("");
 
-// const uploadImageAsync = async (uri: string, postId: string, index: number) => {
-//   return new Promise(async (resolve, reject) => {
-
-
-const uploadImageAsync = async (uri: string, postId: string, index: number): Promise<string> => {
-  return new Promise(async (resolve, reject) => {
-
-
-    const blob: any = await new Promise((resolve, reject) => {
-      
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function (e) {
-        reject(new TypeError("Network request failed"));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", uri, true);
-      xhr.send(null);
-    });
-
-    const filename = `posts/${postId}/image_${index}_${Date.now()}.jpg`;
-    const imgRef = storageRef(storage, filename);
-    
-    try {
-      await uploadBytes(imgRef, blob);
-      const url = await getDownloadURL(imgRef);
-      blob.close(); 
-      resolve(url);
-    } catch (error) {
-      blob.close();
-      reject(error);
-    }
-  });
-};
-
- const submit = async () => {
   
+  useEffect(() => {
+    setBedrooms(""); setBathrooms(""); setAddress("");
+    setModel(""); setYear(""); setMileage("");
+    setGear(""); setFuelType(""); setEngineCC("");
+  }, [category]);
+
+  const uploadImageAsync = async (uri: string, postId: string, index: number): Promise<string> => {
+    return new Promise(async (resolve, reject) => {
+      const blob: any = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = () => resolve(xhr.response);
+        xhr.onerror = () => reject(new TypeError("Network request failed"));
+        xhr.responseType = "blob";
+        xhr.open("GET", uri, true);
+        xhr.send(null);
+      });
+
+      const filename = `posts/${postId}/image_${index}_${Date.now()}.jpg`;
+      const imgRef = storageRef(storage, filename);
+      try {
+        await uploadBytes(imgRef, blob);
+        const url = await getDownloadURL(imgRef);
+        blob.close();
+        resolve(url);
+      } catch (error) {
+        blob.close();
+        reject(error);
+      }
+    });
+  };
+
+  const submit = async () => {
     if (!title || !category || images.length === 0) {
       Alert.alert("Error", "Please fill all fields and pick images!");
       return;
@@ -85,31 +74,25 @@ const uploadImageAsync = async (uri: string, postId: string, index: number): Pro
 
     setLoading(true);
     try {
-      
-      const docRef = await addDoc(collection(db, "posts"), {
-        category,
-        subCategory,
-        mileage,
-        model,
-        year,
-        gear,
-        fuelType,
-        engineCC,
-        bedrooms,
-        bathrooms,
-        address,
-        title,
-        description,
-        price,
-        city,
-       
+      const postData: any = {
+        category, title, description, price,
+        phoneNumber, city,
         createdAt: serverTimestamp(),
-        userId: auth.currentUser ? auth.currentUser.uid : null,
-        imageUrls: [], 
-      });
+        userId: auth.currentUser?.uid || null,
+        imageUrls: [],
+      };
 
-      console.log("Post document created with ID: ", docRef.id);
+      if (category === "Vehicles") {
+        postData.model = model; postData.year = year;
+        postData.mileage = mileage; postData.gear = gear;
+        postData.fuelType = fuelType; postData.engineCC = engineCC;
+      } else if (category === "Property") {
+        postData.bedrooms = bedrooms;
+        postData.bathrooms = bathrooms;
+        postData.address = address;
+      }
 
+      const docRef = await addDoc(collection(db, "posts"), postData);
       
       const imageUrls: string[] = [];
       for (let i = 0; i < images.length; i++) {
@@ -117,35 +100,17 @@ const uploadImageAsync = async (uri: string, postId: string, index: number): Pro
         imageUrls.push(url);
       }
 
-    
       await updateDoc(docRef, { imageUrls: imageUrls });
 
       Alert.alert("✅ Success", "Post Added Successfully!");
       
-     
-      // submit ශ්‍රිතයේ අගට මෙය එකතු කරන්න
-setImages([]);
-setTitle("");
-setCategory(""); // Category එකත් clear කරන්න
-setSubCategory("");
-setDescription("");
-setPrice("");
-setPhoneNumber("");
-setYear("");
-setMileage("");
-setModel("");
-setGear("");
-setFuelType("");
-setEngineCC("");
-setBedrooms("");
-setBathrooms("");
-setAddress("");
-setCity("");
-     
+      // Reset all fields
+      setImages([]); setTitle(""); setCategory("");
+      setDescription(""); setPrice(""); setPhoneNumber(""); setCity("");
       
     } catch (error) {
-      console.error("Error adding post: ", error);
-      Alert.alert("❌ Error", "Failed to add post. Please try again.");
+      console.error(error);
+      Alert.alert("❌ Error", "Failed to add post.");
     } finally {
       setLoading(false);
     }
@@ -163,10 +128,10 @@ setCity("");
               <Picker.Item label="Vehicles" value="Vehicles" />
               <Picker.Item label="Property" value="Property" />
               <Picker.Item label="Electronics" value="Electronics" />
-              <Picker.Item label="Furniture" value="Furniture" />
-              <Picker.Item label="Fashion" value="Fashion" />
+              <Picker.Item label="Mobiles" value="Mobiles" />
+              <Picker.Item label="Fation" value="Fation" />
+              <Picker.Item label="Food" value="Food" />
 
-              
             </Picker>
           </View>
 
@@ -178,22 +143,19 @@ setCity("");
               <TextInput style={styles.input} placeholder="Gear Type" value={gear} onChangeText={setGear} />
               <TextInput style={styles.input} placeholder="Fuel Type" value={fuelType} onChangeText={setFuelType} />
               <TextInput style={styles.input} placeholder="Engine CC" value={engineCC} onChangeText={setEngineCC} keyboardType="numeric" />
-              <TextInput style={styles.input} placeholder="Phone Number" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="numeric" />
-              <TextInput style={styles.input} placeholder="City" value={city} onChangeText={setCity} />
             </>
           )}
-         
 
-           {category === "Property" && (
+          {category === "Property" && (
             <>
               <TextInput style={styles.input} placeholder="Bedrooms" value={bedrooms} onChangeText={setBedrooms} keyboardType="numeric" />
               <TextInput style={styles.input} placeholder="Bathrooms" value={bathrooms} onChangeText={setBathrooms} keyboardType="numeric" />
               <TextInput style={styles.input} placeholder="Address" value={address} onChangeText={setAddress} />
-              <TextInput style={styles.input} placeholder="Phone Number" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="numeric" />
-              <TextInput style={styles.input} placeholder="City" value={city} onChangeText={setCity} />
             </>
           )}
 
+          <TextInput style={styles.input} placeholder="Phone Number" value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="numeric" />
+          <TextInput style={styles.input} placeholder="City" value={city} onChangeText={setCity} />
           <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
           <TextInput style={styles.input} placeholder="Price" value={price} onChangeText={setPrice} keyboardType="numeric" />
           <TextInput style={[styles.input, {height: 100}]} placeholder="Description" value={description} onChangeText={setDescription} multiline />
@@ -216,7 +178,7 @@ setCity("");
 
 const styles = StyleSheet.create({
   scrollContainer: { padding: 20 },
-  card: { backgroundColor: '#fff', borderRadius: 24, padding: 20, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 10, elevation: 5 },
+  card: { backgroundColor: '#fff', borderRadius: 24, padding: 20, elevation: 5 },
   headerTitle: { fontSize: 24, fontWeight: '800', textAlign: 'center', marginBottom: 20, color: '#4f46e5' },
   pickerContainer: { borderWidth: 1, borderColor: '#ccc', borderRadius: 12, marginBottom: 15 },
   input: { borderWidth: 1, borderColor: '#ccc', padding: 15, borderRadius: 12, marginBottom: 15 },
