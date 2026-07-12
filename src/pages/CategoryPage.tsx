@@ -10,21 +10,14 @@ StyleSheet
 
 import {getPosts} from "../services/postService";
 
-
 export default function CategoryScreen({route}:any){
-
-
 const {name} = route.params;
-
-
 const [listings,setListings] = useState<any[]>([]);
 
 
 
 useEffect(()=>{
-
  loadPosts();
-
 },[]);
 
 
@@ -34,8 +27,6 @@ const loadPosts = async()=>{
  try{
 
   const data = await getPosts();
-
-
   const filtered = data.filter(
     (item:any)=>
       item.category?.toLowerCase() ===
@@ -45,13 +36,9 @@ const loadPosts = async()=>{
 
   setListings(filtered);
 
-
  }catch(error){
-
   console.log(error);
-
  }
-
 };
 
 
@@ -59,24 +46,15 @@ const loadPosts = async()=>{
 return(
 
 <View style={styles.container}>
-
-
 <Text style={styles.title}>
 Category: {name}
 </Text>
 
-
-
 <FlatList
 
 data={listings}
-
 keyExtractor={(item)=>item.id}
-
-
 renderItem={({item})=>(
-
-
 <View style={styles.card}>
 
 
@@ -84,52 +62,32 @@ renderItem={({item})=>(
 item.images?.length > 0 &&
 
 <Image
-
 source={{
 uri:item.images[0]
 }}
-
 style={styles.image}
-
 />
-
 }
-
 
 
 <Text style={styles.name}>
 {item.title}
 </Text>
 
-
-
 <Text style={styles.price}>
 LKR {item.price}
 </Text>
-
-
 
 <Text>
 {item.city}
 </Text>
 
-
 </View>
-
-
 )}
-
-
 />
-
-
-
 </View>
-
 );
-
 }
-
 
 
 const styles = StyleSheet.create({
