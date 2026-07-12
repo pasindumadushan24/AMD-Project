@@ -19,48 +19,20 @@ import {db, storage} from "../firebase/config";
 
 import {getAuth} from "firebase/auth";
 
-
-
 export default function Profile({navigation}:any){
 
-
 const [myPosts,setMyPosts]=useState<any[]>([]);
-
-
-
 const auth=getAuth();
-
-
-
-
-
 useEffect(()=>{
-
 loadMyPosts();
-
 },[]);
-
-
-
-
-
 const loadMyPosts=async()=>{
 
-
 try{
-
-
 const user=auth.currentUser;
-
-
-
 if(!user){
-
 return;
-
 }
-
-
 
 const q=query(
 
@@ -73,30 +45,15 @@ user.uid
 )
 
 );
-
-
-
 const snapshot=await getDocs(q);
-
-
-
 const data=snapshot.docs.map(item=>(
-
 {
-
 id:item.id,
-
 ...item.data()
-
 }
-
 ));
 
-
-
 setMyPosts(data);
-
-
 
 }
 
@@ -142,32 +99,28 @@ console.log(error);
 
 
 
- // මේවා ඉම්පෝර්ට් කරන්න
-
 const deletePost = async (id: string) => {
   try {
-    // 1. මුලින්ම Database එකෙන් එම පෝස්ට් එකේ දත්ත (URLs ඇතුළුව) ලබා ගන්න
+    
     const postRef = doc(db, "posts", id);
     const postSnap = await getDoc(postRef);
 
     if (postSnap.exists()) {
       const data = postSnap.data();
-      const imageUrls = data.imageUrls || []; // පින්තූර URLs ලබා ගන්න
-
-      // 2. Storage එකේ ඇති පින්තූර ඩිලීට් කරන්න
+      const imageUrls = data.imageUrls || []; 
       for (const url of imageUrls) {
         try {
           const imgRef = storageRef(storage, url);
           await deleteObject(imgRef);
         } catch (storageError) {
-          console.log("පින්තූරය ඩිලීට් කිරීමේදී දෝෂයක්:", storageError);
+          console.log("Image Delete Failed:", storageError);
         }
       }
 
-      // 3. දැන් Database එකෙන් පෝස්ට් එක ඩිලීට් කරන්න
+     
       await deleteDoc(postRef);
 
-      // 4. UI එක Update කරන්න
+    
       setMyPosts(myPosts.filter((post) => post.id !== id));
       Alert.alert("Success", "Post and images deleted successfully!");
     }
