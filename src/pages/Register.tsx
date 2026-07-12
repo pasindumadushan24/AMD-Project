@@ -161,7 +161,7 @@ marginBottom:15
 
 
 button:{
-backgroundColor:"#2563eb",
+backgroundColor:"#4f46e5",
 padding:15,
 borderRadius:10
 },
