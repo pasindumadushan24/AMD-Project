@@ -38,7 +38,8 @@ bash
 npm install
 
 
-Run the project:https://expo.dev/accounts/pasindumadushan123/projects/QuickMarketMobile/builds/2266f59a-3cca-4932-ac7e-079b70223167
+Run the project
+
 
 bash
 npx expo start
@@ -65,6 +66,9 @@ Generate an Android APK using:
 
 bash
 eas build -p android --profile preview
+
+
+Android : https://expo.dev/accounts/pasindumadushan123/projects/QuickMarketMobile/builds/2266f59a-3cca-4932-ac7e-079b70223167
 
 
 
