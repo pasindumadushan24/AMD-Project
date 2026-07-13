@@ -28,19 +28,17 @@ Technologies Used
 
 Installation
 
-Clone the repository:
 
 bash
 git clone https: https://github.com/pasindumadushan24/AMD-Project
 
 
-Install dependencies:
 
 bash
 npm install
 
 
-Run the project:
+Run the project:https://expo.dev/accounts/pasindumadushan123/projects/QuickMarketMobile/builds/2266f59a-3cca-4932-ac7e-079b70223167
 
 bash
 npx expo start
